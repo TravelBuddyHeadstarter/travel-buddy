@@ -26,9 +26,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="education"
         options={{
-          title: 'Education',
+          title: 'Rewards',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'book-sharp' : 'book-outline'} color={color} />
+            <TabBarIcon name={focused ? 'gift-sharp' : 'gift-outline'} color={color} />
           ),
         }}
       />
