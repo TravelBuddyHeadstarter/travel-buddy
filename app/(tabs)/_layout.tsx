@@ -41,6 +41,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="leaderboard"
+        options={{
+          title: 'Leaderboard',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'shield' : 'shield-sharp'} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
