@@ -105,14 +105,14 @@ export default function App() {
         </LinearGradient>
         <TouchableOpacity style={styles.profileContainer} onPress={toggleDropdown}>
           <Image
-            source={{ uri: 'https://via.placeholder.com/150' }} // Placeholder image URL
+            source={{ uri: 'https://randomuser.me/api/portraits/men/7.jpg' }} // Placeholder image URL https://via.placeholder.com/150
             style={styles.profileImage}
           />
         </TouchableOpacity>
       </View>
 
       <Animated.View style={[styles.welcomeContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.welcomeText}>Welcome, [Your Name]!</Text>
+        <Text style={styles.welcomeText}>Welcome, Julianna Cardenas!</Text>
       </Animated.View>
       {dropdownVisible && (
           <View style={styles.dropdownMenu}>
