@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Animated, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Animated, Image, Dimensions, Pressable } from 'react-native';
 import MapView from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { BarChart } from 'react-native-chart-kit';
+import { useRouter } from 'expo-router';
 
 export default function App() {
   const [mapVisible, setMapVisible] = useState(false);
@@ -14,6 +15,8 @@ export default function App() {
   const [dropdownVisible, setDropdownVisible] = useState(false); // For dropdown menu
   const fadeAnim = useRef(new Animated.Value(1)).current; // Initial opacity value for the animation
 
+  const router = useRouter();
+  
   useEffect(() => {
     // Mock data
     setSteps(5000); // Replace with actual step count logic
@@ -105,23 +108,24 @@ export default function App() {
         </LinearGradient>
         <TouchableOpacity style={styles.profileContainer} onPress={toggleDropdown}>
           <Image
-            source={{ uri: 'https://via.placeholder.com/150' }} // Placeholder image URL
+            source={{ uri: 'https://randomuser.me/api/portraits/men/7.jpg' }} // Placeholder image URL https://via.placeholder.com/150
             style={styles.profileImage}
           />
         </TouchableOpacity>
       </View>
 
       <Animated.View style={[styles.welcomeContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.welcomeText}>Welcome, [Your Name]!</Text>
+        <Text style={styles.welcomeText}>Welcome, Julianna Cardenas!</Text>
       </Animated.View>
       {dropdownVisible && (
           <View style={styles.dropdownMenu}>
-            <TouchableOpacity style={styles.dropdownItem} onPress={() => console.log('View Profile')}>
-              <Text style={styles.dropdownText}>View Profile</Text>
+            <TouchableOpacity style={styles.dropdownItem} onPress={() => router.push('profile')}>
+              <Text style={styles.dropdownText}>Edit Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.dropdownItem} onPress={() => console.log('Log Out')}>
               <Text style={styles.dropdownText}>Log Out</Text>
             </TouchableOpacity>
+            
           </View>
         )}
       <View style={styles.circleContainer}>
