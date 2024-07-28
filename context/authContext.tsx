@@ -1,6 +1,6 @@
 import { Children, createContext, useContext, useEffect, useState } from "react";
-import {createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, User} from 'firebase/auth'
-import {doc, getDoc, setDoc} from 'firebase/firestore'
+import {createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateCurrentUser, User} from 'firebase/auth'
+import {doc, getDoc, setDoc, updateDoc} from 'firebase/firestore'
 import { auth, db } from '../firebaseConfig'
 
 export const AuthContext = createContext<
@@ -9,6 +9,7 @@ export const AuthContext = createContext<
     isAuthenticated:boolean|undefined, 
     login:(email: string, password: string) => Promise<{success:boolean, msg?:string}>, 
     register:(email:string, password:string, username:string)=>Promise<{success:boolean, msg?:string, data?:User}>, 
+    editProfile:(email:string, password:string, username:string)=>Promise<{success:boolean, msg?:string|undefined, data?:User|null}>, 
     logout:()=>{} 
 }|null>(null);
 
@@ -75,8 +76,24 @@ export const AuthContextProvider = ({children}:any) => {
         }
     }
 
+    const editProfile = async (email?:string, password?:string, username?:string) => {
+        try {
+            
+            await updateDoc(doc(db, "users", email), {
+                email: true,
+            })
+            return {success: true, data: user}
+        } catch(e:any) {
+            let msg = e.message
+            // if (msg.includes('(auth/invalid-email)')) msg="Invalid Email"
+            // if (msg.includes('(auth/email-already-in-use)')) msg="This email is already in use."
+            return {success: false, msg}
+            
+        }
+    }
+
     return (
-        <AuthContext.Provider value={{user, isAuthenticated, login, register, logout }}>
+        <AuthContext.Provider value={{user, isAuthenticated, login, register, logout, editProfile }}>
             {children}
         </AuthContext.Provider>
     )

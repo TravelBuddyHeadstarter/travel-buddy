@@ -1,105 +1,168 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform } from 'react-native';
-
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import React, { useRef, useState } from 'react';
+import { View, Text, TextInput, Image, StyleSheet, Alert, Pressable } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import CustomKeyboardView from '@/components/CustomKeyboardView';
+import { useAuth } from '@/context/authContext';
 
-export default function ProfileScreen() {
+const ProfilePage: React.FC = () => {
+  const profileImageRef = useRef<string | null>(null);
+  const nameRef = useRef("ajohnson");
+  const emailRef = useRef("ajohnson@gmail.com");
+  const passwordRef = useRef("");
+  const confirmPasswordRef = useRef("");
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const {editProfile} = useAuth();
+
+  // Handle image picker
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      profileImageRef.current = result.assets[0].uri;
+    }
+  };
+
+  // Handle form submission
+  const handleSave = async() => {
+    setLoading(true);
+    const name = nameRef.current ?? '';
+    const email = emailRef.current ?? '';
+    const password = passwordRef.current ?? '';
+    const confirmPassword = confirmPasswordRef.current ?? '';
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    // Handle form data submission (e.g., send to server)
+    let response = await editProfile(nameRef.current, emailRef.current, passwordRef.current)
+    setLoading(false);
+    Alert.alert('Success', 'Profile updated successfully');
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Profile</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText> library
-          to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <CustomKeyboardView>
+        <ThemedText type='title' style={styles.header}>Edit Profile</ThemedText>
+        <Pressable onPress={pickImage}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={profileImageRef.current ? { uri: profileImageRef.current } : { uri: 'https://randomuser.me/api/portraits/men/7.jpg' }} // require('./assets/default-avatar.png')
+              style={styles.profileImage}
+            />
+            <Text style={styles.changePhotoText}>Change Profile Photo</Text>
+          </View>
+        </Pressable>
+
+        <View style={styles.formContainer}>
+          <TextInput
+            defaultValue={nameRef.current}
+            style={styles.input}
+            placeholder="Username"
+            onChangeText={value => nameRef.current = value}
+            placeholderTextColor={'gray'}
+          />
+          <TextInput
+            defaultValue={emailRef.current}
+            style={styles.input}
+            placeholder="Email"
+            keyboardType="email-address"
+            onChangeText={value => emailRef.current = value}
+            placeholderTextColor={'gray'}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            onChangeText={value => passwordRef.current = value}
+            placeholderTextColor={'gray'}
+            secureTextEntry
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            onChangeText={value => confirmPasswordRef.current = value}
+            placeholderTextColor={'gray'}
+            secureTextEntry
+          />
+
+          <Pressable onPress={handleSave} style={[styles.button, loading && styles.buttonDisabled]} disabled={loading} >
+            <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Save'}</Text>
+          </Pressable>
+        </View>
+      </CustomKeyboardView>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#fff',
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  imageContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  changePhotoText: {
+    marginTop: 8,
+    color: '#007bff',
+  },
+  header: {
+    textAlign: 'center',
+    color: '#6DD195',
+    marginBottom: 20,
+  },
+  formContainer: {
+    flex: 1,
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+    marginBottom: 12,
+    paddingHorizontal: 8,
+  },
+  buttonDisabled: {
+    backgroundColor: '#A3B7A0', // Lighter green for disabled state
+  },
+  buttonText: {
+    color: '#FFFFFF', // Text color
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  button: {
+    backgroundColor: '#1C6709', // Green color
+    borderRadius: 10, // Rounded corners
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset
+    shadowOpacity: 0.3, // Shadow opacity
+    shadowRadius: 4, // Shadow radius
+    elevation: 5, // Android shadow
+    color: 'white',
   },
 });
+
+export default ProfilePage;
+
+
 
 // import React, { useState } from 'react';
 // import { View, Text, TextInput, TouchableOpacity, Image, ImageBackground, StyleSheet } from 'react-native';
@@ -136,7 +199,7 @@ const styles = StyleSheet.create({
 //     }
 //   };
 
-//   const saveProfile = (values) => {
+//   const saveProfile = (values: { name: any; email: any; password: any; }) => {
 //     const userRef = firestore().collection('users').doc('USER_ID'); // Replace 'USER_ID' with the actual user ID
 //     userRef.set({
 //       name: values.name,
@@ -148,7 +211,7 @@ const styles = StyleSheet.create({
 //       console.log('User updated!');
 //       navigation.navigate('Dashboard');
 //     })
-//     .catch(error => {
+//     .catch((error: any) => {
 //       console.error("Error updating user: ", error);
 //     });
 //   };
@@ -165,9 +228,9 @@ const styles = StyleSheet.create({
 //         <Formik
 //           initialValues={{ name: '', email: '', password: '', confirmPassword: '' }}
 //           validationSchema={ProfileSchema}
-//           onSubmit={values => saveProfile(values)}
+//           onSubmit={(values: { name: any; email: any; password: any; }) => saveProfile(values)}
 //         >
-//           {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+//           {({ handleChange, handleBlur, handleSubmit, values, errors, touched }:any) => (
 //             <View style={styles.formContainer}>
 //               <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
 //                 {image ? (
