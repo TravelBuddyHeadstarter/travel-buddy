@@ -6,13 +6,14 @@ import CustomKeyboardView from '@/components/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
 
 const ProfilePage: React.FC = () => {
-  const profileImageRef = useRef<string | null>(null);
+  const profileImageRef = useRef<string | null>("https://randomuser.me/api/portraits/men/7.jpg");
   const nameRef = useRef("ajohnson");
   const emailRef = useRef("ajohnson@gmail.com");
   const passwordRef = useRef("");
   const confirmPasswordRef = useRef("");
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [porfileImage, setProfileImage] = useState<string>("https://randomuser.me/api/portraits/men/7.jpg");
   const {editProfile} = useAuth();
 
   // Handle image picker
@@ -26,6 +27,7 @@ const ProfilePage: React.FC = () => {
 
     if (!result.canceled) {
       profileImageRef.current = result.assets[0].uri;
+      setProfileImage(result.assets[0].uri)
     }
   };
 
