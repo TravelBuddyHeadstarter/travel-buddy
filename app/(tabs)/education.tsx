@@ -120,6 +120,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#34D399',
     padding: 20,
     alignItems: 'center',
+    marginTop: 32
+
   },
   pointsText: {
     fontSize: 24,
